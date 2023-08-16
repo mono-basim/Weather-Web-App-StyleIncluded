@@ -39,7 +39,7 @@ To get started with this project, follow these steps:
 1. Clone the repository to your local machine using Git:
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/mono-basim/Weather-Web-App-StyleIncluded.git
 ```
 
 2. dependecies Installation based on package json
