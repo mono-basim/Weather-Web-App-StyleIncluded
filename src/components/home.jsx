@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { createClient } from "pexels";
 
 import { FaCloudRain, FaSun, FaCloud } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
@@ -7,8 +6,11 @@ import { FaLocationDot } from "react-icons/fa6";
 function Home() {
   const [countryName, setCountryName] = useState("");
   const [weatherData, setWeatherData] = useState(null);
+  const [unsplashData, setUnsplashData] = useState([]);
   const limit = 1;
-  const apiKey = "8516cd9860c57e300759a2046655ea22"; // Replace with your actual API key from OpenWeatherApi
+  const apiKey = "enter your own api key"; // Replace with your actual API key from OpenWeatherApi
+
+  const accessKey = "enter your own api key";
 
   const weatherIconMap = {
     "01d": FaSun, // Clear sky
@@ -26,7 +28,7 @@ function Home() {
 
   const fetchWeather = async () => {
     try {
-      // Fetch data from the first API
+      // Fetch data from the first API - Rest Countries API
       const countryResponse = await fetch(
         `https://restcountries.com/v2/name/${countryName}`
       );
@@ -42,24 +44,15 @@ function Home() {
       const stateCode = countryData[0].regionCodes?.iso2a || "";
       const countryCode = countryData[0].codes?.iso2 || "";
 
-      //fetch the country image api
-
-      //Vq6PWC1OOjZtHb5ohqJ3ncJ5WhMp9LEGAn7TBgJLpNdsY9tMcdVQzegi
-      const countryImageApi = `Vq6PWC1OOjZtHb5ohqJ3ncJ5WhMp9LEGAn7TBgJLpNdsY9tMcdVQzegi`;
-      const client = createClient(countryImageApi);
-
-      const query = cityName;
-
-      client.photos.search({ query, per_page: 1 }).then((photos) => {
-        photoCityUrl = photos.photos[0]?.src.landscape;
-        console.log(photoCityUrl);
-        const homeNav = document.querySelector(".home-nav");
-        homeNav.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url(${photoCityUrl})`;
-      });
-
-      // Construct URL for the second API
+      // Construct the API URL for Unsplash
+      const apiUrl = `https://api.unsplash.com/search/photos?query=${countryName}&client_id=${accessKey}`;
+      const apiResponse = await fetch(apiUrl);
+      const unplashData = await apiResponse.json();
+      console.log(unplashData);
+      
+      // Construct URL for the second API - OpenWeatherMap's Geo API
       const geoApiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode},${countryCode}&limit=${limit}&appid=${apiKey}`;
-      // Fetch data from the second API
+      // Fetch data from the second API - Geo API
       const geoResponse = await fetch(geoApiUrl);
       const geoData = await geoResponse.json();
 
@@ -72,17 +65,17 @@ function Home() {
       const lat = geoData[0].lat || "";
       const lon = geoData[0].lon || "";
 
-      // Construct URL for the third API
+      // Construct URL for the third API - OpenWeatherMap's Weather API
       const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
 
-      // Fetch weather data from the third API
+      // Fetch weather data from the third API - Weather API
       const weatherResponse = await fetch(weatherApiUrl);
       const weatherData = await weatherResponse.json();
 
-      console.log("Weather Icon Code:", weatherData.weather[0].icon);
       // Set the weather data in state
       setWeatherData(weatherData);
-      console.log(weatherData);
+      // After fetching Unsplash data
+      setUnsplashData(unplashData.results);
     } catch (error) {
       console.error("An error occurred:", error);
     }
@@ -114,7 +107,12 @@ function Home() {
     <div className="home-container">
       <div
         className="home-nav"
-        //style={{ backgroundImage: `url(${photoCityUrl})` }}
+        style={{
+          backgroundImage:
+            unsplashData.length > 0
+              ? `linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url(${unsplashData[0].urls.full})`
+              : "linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url(https://images.pexels.com/photos/109629/pexels-photo-109629.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)",
+        }}
       >
         <h1>Weather App</h1>
         <input
@@ -126,7 +124,14 @@ function Home() {
         <button onClick={fetchWeather}>Get Weather</button>
       </div>
 
-      {weatherData && (
+      {weatherData === null ? (
+        <div className="home-data">
+          <div className="main-weather">
+            <h1>No Country To Show</h1>
+            <p>Please enter a country name above!</p>
+          </div>
+        </div>
+      ) : (
         <div className="home-data">
           <div className="main-weather">
             <div className="weather-icon">
