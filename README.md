@@ -57,3 +57,11 @@ npm run dev
 ```bash
 npm run build
 ```
+
+
+# ERROR :
+
+Uncaught ReferenceError: require is not defined
+    at index-02e8d2ce.js:40:59177
+
+if you get that error or if you have solved it do a pull request.
