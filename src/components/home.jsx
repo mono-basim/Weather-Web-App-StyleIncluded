@@ -10,7 +10,7 @@ function Home() {
   const limit = 1;
   const apiKey = "enter your own api key"; // Replace with your actual API key from OpenWeatherApi
 
-  const accessKey = "enter your own api key";
+  const accessKey = "enter your own api key"; // Replace with your actual API key from  Unsplash Api
 
   const weatherIconMap = {
     "01d": FaSun, // Clear sky
